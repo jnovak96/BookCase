@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">BookCase</string>
+    <string-array name="books">
+        <item>War and Peace</item>
+        <item>The Great Gatsby</item>
+        <item>Moby Dick</item>
+        <item>Don Quixote</item>
+        <item>Ulysses</item>
+        <item>Crime and Punishment</item>
+        <item>The Odyssey</item>
+        <item>Pride and Prejudice</item>
+        <item>Jane Eyre</item>
+        <item>To Kill A Mockingbird</item>
+    </string-array>
+
+    <string-array name="descriptions">
+        <item>War and Peace</item>
+        <item>The Great Gatsby</item>
+        <item>Moby Dick</item>
+        <item>Don Quixote</item>
+        <item>Ulysses</item>
+        <item>Crime and Punishment</item>
+        <item>The Odyssey</item>
+        <item>Pride and Prejudice</item>
+        <item>Jane Eyre</item>
+        <item>To Kill A Mockingbird</item>
+    </string-array>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
