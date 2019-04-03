@@ -18,7 +18,7 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
 
     private static final int NUM_PAGES = 10;
     private ViewPager detailPager;
-    private PagerAdapter pagerAdapter;
+    private CustomFragmentStateAdapter pagerAdapter;
     private BookListFragment listFragment;
     private BookDetailsFragment detailsFragment;
 
@@ -38,7 +38,8 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
             fragTran2.replace(R.id.list_container, listFragment);
             fragTran2.addToBackStack(null);
             fragTran2.commit();
-        } else if (findViewById(R.id.list_container) == null){
+            //If the list fragment is not visible (A.K.A. app is in portrait mode)
+        } else {
             detailPager = findViewById(R.id.details_pager);
             pagerAdapter = new CustomFragmentStateAdapter(getSupportFragmentManager());
             detailPager.setAdapter(pagerAdapter);
@@ -57,10 +58,27 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
         }
     }
 
-
     @Override
     public void onBookTitleSelected(int input) {
         detailsFragment.setText(input);
+    }
+
+    public static class CustomFragmentStateAdapter extends FragmentStatePagerAdapter {
+
+        private int NUM_ITEMS = 10;
+        public CustomFragmentStateAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            return BookDetailsFragment.newInstance(i);
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_ITEMS;
+        }
     }
 }
 
