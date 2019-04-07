@@ -8,15 +8,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.app.Activity;
 
+import java.util.ArrayList;
+
 public class BookListFragment extends Fragment {
     private BookSelectedListener listener;
-    private String[] bookList;
     private ListView bookListView;
+    private CustomArrayAdapter arrayAdapter;
+    private ArrayList<Book> bookList;
 
     public BookListFragment() {
         // Required empty public constructor
@@ -30,12 +34,13 @@ public class BookListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_book_list, container, false);
-
+        MainActivity activity = (MainActivity) getActivity();
+        bookList = activity.getBookList();
         Context context = getActivity();
-        bookList = context.getResources().getStringArray(R.array.books);
-        CustomArrayAdapter arrayAdapter = new CustomArrayAdapter(context, bookList);
+        arrayAdapter = new CustomArrayAdapter(context, bookList);
         bookListView = v.findViewById(R.id.book_list);
         bookListView.setAdapter(arrayAdapter);
+
         bookListView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -59,6 +64,10 @@ public class BookListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         listener = null;
+    }
+
+    public CustomArrayAdapter getAdap() {
+        return arrayAdapter;
     }
 
 }

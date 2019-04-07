@@ -1,6 +1,5 @@
 package edu.temple.bookcase;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -9,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -16,13 +16,15 @@ public class BookDetailsFragment extends Fragment {
 
     private String[] descList;
     private Context context;
-    private TextView bookListView;
+    private TextView bookTitleView;
+    private TextView bookAuthorView;
+    private ImageView bookImageView;
     private Resources resources;
-    private static int position;
+    private static Book selectedBook;
 
-    public static BookDetailsFragment newInstance(int pos) {
+    public static BookDetailsFragment newInstance(Book book) {
         BookDetailsFragment fragment = new BookDetailsFragment();
-        position = pos;
+        selectedBook = book;
         return fragment;
     }
 
@@ -40,14 +42,20 @@ public class BookDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_book_details, container, false);
         context = getActivity();
+        //Remove and replace with Book Object Functionality
         descList = context.getResources().getStringArray(R.array.descriptions);
-        bookListView = rootView.findViewById(R.id.details_text);
-        this.setText(position);
+        bookTitleView = rootView.findViewById(R.id.title_text);
+        bookAuthorView = rootView.findViewById(R.id.author_text);
+        bookImageView = rootView.findViewById(R.id.book_image);
+        this.setText(selectedBook);
         return rootView;
     }
 
-    public void setText(int position) {
-        bookListView.setText(descList[position]);
+    public void setText(Book book) {
+        //Remove and replace with Book Object Functionality
+        bookTitleView.setText(book.getTitle());
+        bookAuthorView.setText(book.getAuthor());
+        bookImageView.setImageDrawable(book.getImage());
     }
 
     @Override

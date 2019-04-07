@@ -1,34 +1,35 @@
 package edu.temple.bookcase;
 
-import android.content.Context;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.widget.Toast;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
+import java.util.ArrayList;
 
 import edu.temple.bookcase.BookListFragment.BookSelectedListener;
 
 public class MainActivity extends FragmentActivity implements BookSelectedListener {
 
-    private static final int NUM_PAGES = 10;
     private ViewPager detailPager;
-    private CustomFragmentStateAdapter pagerAdapter;
-    private BookListFragment listFragment;
     private BookDetailsFragment detailsFragment;
+    android.content.res.Resources res;
+    ArrayList<Book> booklist;
+    EditText searchBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Context context = getApplicationContext();
-        listFragment = new BookListFragment();
+        res = getResources();
+        final BookListFragment listFragment = new BookListFragment();
         detailsFragment = new BookDetailsFragment();
+        setContentView(R.layout.activity_main);
+        buildLibrary();
+        //Landscape
         if (findViewById(R.id.list_container) != null) {
             FragmentTransaction fragTran = getSupportFragmentManager().beginTransaction();
             fragTran.replace(R.id.details_container, detailsFragment);
@@ -38,12 +39,49 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
             fragTran2.replace(R.id.list_container, listFragment);
             fragTran2.addToBackStack(null);
             fragTran2.commit();
-            //If the list fragment is not visible (A.K.A. app is in portrait mode)
-        } else {
+            searchBar = findViewById(R.id.edit_text);
+            searchBar.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    listFragment.getAdap().getFilter().filter(s);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+
+            //Portrait: list container not available.
+            } else {
+            searchBar = findViewById(R.id.edit_text);
             detailPager = findViewById(R.id.details_pager);
-            pagerAdapter = new CustomFragmentStateAdapter(getSupportFragmentManager());
+            final CustomFragmentStateAdapter pagerAdapter = new CustomFragmentStateAdapter(getSupportFragmentManager(), booklist);
             detailPager.setAdapter(pagerAdapter);
+            searchBar.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    pagerAdapter.getFilter().filter(s);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
         }
+
+    }
+
+    public ArrayList<Book> getBookList() {
+        return booklist;
     }
 
     @Override
@@ -58,27 +96,27 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
         }
     }
 
+
+
+    public void buildLibrary(){
+        booklist = new ArrayList<>();
+        booklist.add(new Book("War and Peace", "Leo Tolstoy", ResourcesCompat.getDrawable(res, R.drawable.img00, null)));
+        booklist.add(new Book("The Great Gatsby", "F. Scott Fitzgerald", ResourcesCompat.getDrawable(res, R.drawable.img01, null)));
+        booklist.add(new Book("Moby Dick", "Herman Melville",ResourcesCompat.getDrawable(res, R.drawable.img02, null)));
+        booklist.add(new Book("Don Quixote", "Miguel de Cervantes",ResourcesCompat.getDrawable(res, R.drawable.img03, null)));
+        booklist.add(new Book("Ulysses", "James Joyce", ResourcesCompat.getDrawable(res, R.drawable.img04, null)));
+        booklist.add(new Book("Crime and Punishment", "Fyodor Dostoevksy", ResourcesCompat.getDrawable(res, R.drawable.img05, null)));
+        booklist.add(new Book("The Odyssey", "Homer", ResourcesCompat.getDrawable(res, R.drawable.img06, null)));
+        booklist.add(new Book("Pride and Prejudice", "Jane Austen", ResourcesCompat.getDrawable(res, R.drawable.img07, null)));
+        booklist.add(new Book("Jane Eyre", "Charlotte Bronte", ResourcesCompat.getDrawable(res, R.drawable.img08, null)));
+        booklist.add(new Book("To Kill a Mockingbird", "Harper Lee", ResourcesCompat.getDrawable(res, R.drawable.img09, null)));
+    }
+
     @Override
     public void onBookTitleSelected(int input) {
-        detailsFragment.setText(input);
+        detailsFragment.setText(booklist.get(input));
     }
 
-    public static class CustomFragmentStateAdapter extends FragmentStatePagerAdapter {
 
-        private int NUM_ITEMS = 10;
-        public CustomFragmentStateAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            return BookDetailsFragment.newInstance(i);
-        }
-
-        @Override
-        public int getCount() {
-            return NUM_ITEMS;
-        }
-    }
 }
 
