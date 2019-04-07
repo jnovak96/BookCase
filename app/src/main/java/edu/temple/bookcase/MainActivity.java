@@ -56,7 +56,7 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
                 }
             });
 
-            //Portrait: list container not available.
+            //Portrait: list container unavailable.
             } else {
             searchBar = findViewById(R.id.edit_text);
             detailPager = findViewById(R.id.details_pager);
