@@ -1,9 +1,8 @@
 package edu.temple.bookcase;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -12,13 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.os.IBinder;
-import android.content.ServiceConnection;
-
-import edu.temple.audiobookplayer.AudiobookService;
-
 
 public class BookDetailsFragment extends Fragment {
 
@@ -33,6 +28,7 @@ public class BookDetailsFragment extends Fragment {
     private boolean isPlaying;
     private static Book selectedBook;
     private TextView seekBarTextView;
+
     int progressValue;
 
     public static BookDetailsFragment newInstance(Book book) {
@@ -91,7 +87,6 @@ public class BookDetailsFragment extends Fragment {
                     Log.i("BookPlay: ", "Book Played...\n");
                     playPauseButton.setText("Pause");
                     ((MainActivity)getActivity()).playBook(selectedBook.getBook_id(), progressValue);
-
                 }
                 isPlaying = !isPlaying;
             }
@@ -99,13 +94,15 @@ public class BookDetailsFragment extends Fragment {
 
         seekBar = rootView.findViewById(R.id.seekBar);
         seekBar.setMax(selectedBook.getDuration());
-        seekBarTextView.setText(progressValue + " / " + selectedBook.getDuration());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressValue = progress;
-                ((MainActivity)getActivity()).playBook(selectedBook.getBook_id(), progress);
-                seekBarTextView.setText(progressValue + " / " + selectedBook.getDuration());
+                Log.i("Progress: ", Integer.toString(progress));
+                int progPercent = (progressValue * 100) / selectedBook.getDuration();
+                Log.i("ProgressPercent:", Integer.toString(progPercent));
+                ((MainActivity)getActivity()).seekBook(progressValue);
+                seekBarTextView.setText(progPercent + "% / 100%");
             }
 
             @Override
@@ -123,6 +120,11 @@ public class BookDetailsFragment extends Fragment {
         bookTitleView.setText(book.getTitle() + " (" + book.getPublished() + ")");
         bookAuthorView.setText(book.getAuthor());
         new DownloadCover(bookImageView).execute(book.getCover_url());
+    }
+
+    public void setSeekBarProgress(int progress){
+        if (seekBar != null)
+            seekBar.setProgress(progress);
     }
 
     @Override

@@ -4,8 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
-import android.provider.MediaStore;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
@@ -14,13 +15,10 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
-
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-
 import edu.temple.audiobookplayer.*;
 import edu.temple.bookcase.BookListFragment.BookSelectedListener;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,9 +32,10 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
     android.content.res.Resources res;
     ArrayList<Book> bookList;
     EditText searchBar;
-    AudiobookService audiobookService;
     private AudiobookService.MediaControlBinder mBinder;
     boolean abServiceConnected;
+    private Handler progressHandler = new Handler();
+
 
     ServiceConnection myConnection = new ServiceConnection() {
         @Override
@@ -73,9 +72,9 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
         res = getResources();
         listFragment = new BookListFragment();
         detailsFragment = new BookDetailsFragment();
-        AudiobookService abServe = new AudiobookService();
         setContentView(R.layout.activity_main);
         fetchJson process = new fetchJson();
+
         //Fetch JSON Data
         try {
             jsonData = process.execute().get();
@@ -117,6 +116,7 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
 
                 }
             });
+
             //Portrait: list container unavailable.
         } else {
             searchBar = findViewById(R.id.edit_text);
@@ -157,18 +157,18 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
         bookList = new ArrayList<>();
         Log.i("jsonData: ", jsonData);
         JSONArray jsonArray = new JSONArray(jsonData);
-            for (int i = 0; i < jsonArray.length(); i++){
-                JSONObject currentBook = (JSONObject) jsonArray.get(i);
-                bookList.add(new Book(currentBook.getInt("book_id"),
-                        currentBook.getString("title"),
-                        currentBook.getString("author"),
-                        currentBook.getInt("duration"),
-                        currentBook.getInt("published"),
-                        currentBook.getString("cover_url")));
-            }
-            for (int i = 0; i < bookList.size(); i++) {
-                Log.i("BookList", bookList.get(i).toString());
-            }
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject currentBook = (JSONObject) jsonArray.get(i);
+            bookList.add(new Book(currentBook.getInt("book_id"),
+                    currentBook.getString("title"),
+                    currentBook.getString("author"),
+                    currentBook.getInt("duration"),
+                    currentBook.getInt("published"),
+                    currentBook.getString("cover_url")));
+        }
+        for (int i = 0; i < bookList.size(); i++) {
+            Log.i("BookList", bookList.get(i).toString());
+        }
     }
 
     public void playBook(int id, int progress) {
@@ -176,7 +176,10 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
             mBinder.play(id, progress);
         else
             mBinder.play(id);
+
+        setupHandler();
     }
+
 
     public void pauseBook() {
         mBinder.pause();
@@ -185,6 +188,23 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
     public void stopBook() {
         mBinder.stop();
     }
+
+    public void seekBook(int position) {
+        mBinder.seekTo(position);
+    }
+
+    public void setupHandler() {
+        progressHandler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                detailsFragment.setSeekBarProgress(msg.what);
+                return false;
+            }
+        });
+        mBinder.setProgressHandler(progressHandler);
+        Log.i("HandlerSetup: ", "TRUE");
+    }
+
     @Override
     public void onBookTitleSelected(int input) {
         detailsFragment.setText(bookList.get(input));
