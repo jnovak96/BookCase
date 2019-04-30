@@ -22,7 +22,9 @@ public class CustomFragmentStateAdapter extends FragmentStatePagerAdapter implem
 
     @Override
     public Fragment getItem(int i) {
-        return BookDetailsFragment.newInstance(bookTitles.get(i));
+        BookDetailsFragment fragment = new BookDetailsFragment();
+        fragment.setSelectedBook(bookTitles.get(i));
+        return fragment;
     }
 
     @Override

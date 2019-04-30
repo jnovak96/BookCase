@@ -11,30 +11,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class BookDetailsFragment extends Fragment {
 
-    private String[] descList;
-    private Context context;
-    private TextView bookTitleView;
-    private TextView bookAuthorView;
-    private Button stopButton;
-    private Button playPauseButton;
+    String[] descList;
+    Context context;
+    private TextView bookTitleView, bookAuthorView;
+    Button stopButton, playPauseButton, dlButton;
     private SeekBar seekBar;
     private ImageView bookImageView;
-    private boolean isPlaying;
+    private boolean isPlaying, isDownloaded;
     private static Book selectedBook;
     private TextView seekBarTextView;
 
     int progressValue;
 
-    public static BookDetailsFragment newInstance(Book book) {
-        BookDetailsFragment fragment = new BookDetailsFragment();
+    public void setSelectedBook(Book book) {
         selectedBook = book;
-        return fragment;
     }
 
     public BookDetailsFragment() {
@@ -56,10 +51,11 @@ public class BookDetailsFragment extends Fragment {
         bookAuthorView = rootView.findViewById(R.id.author_text);
         bookImageView = rootView.findViewById(R.id.book_image);
         seekBarTextView = rootView.findViewById(R.id.seekbar_time);
-        //Set the Parameters of the Book to show up in the views
-        this.setText(selectedBook);
-        //Stop Button Initialization
 
+        //Set the Parameters of the Book to show up in the views
+        setText(selectedBook);
+
+        //Stop Button Initialization
         stopButton = rootView.findViewById(R.id.stopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -92,6 +88,25 @@ public class BookDetailsFragment extends Fragment {
             }
         });
 
+        //Download Button Initialization
+        dlButton = rootView.findViewById(R.id.dlButton);
+        isDownloaded = false;
+        dlButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isDownloaded) {
+                    //delete the file
+                    ((MainActivity)getActivity()).deleteFile(selectedBook.getBook_id());
+                    dlButton.setText("Download");
+                } else {
+                    //dl the file
+                    ((MainActivity)getActivity()).downloadFile(selectedBook.getBook_id());
+                    dlButton.setText("Delete");
+                }
+            }
+        });
+
+        //Seekbar Initialization
         seekBar = rootView.findViewById(R.id.seekBar);
         seekBar.setMax(selectedBook.getDuration());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

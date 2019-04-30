@@ -4,6 +4,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -15,6 +17,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import edu.temple.audiobookplayer.*;
@@ -35,7 +39,9 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
     private AudiobookService.MediaControlBinder mBinder;
     boolean abServiceConnected;
     private Handler progressHandler = new Handler();
-
+    File storageDirectory;
+    private static String directoryName = "bookCaseApp";
+    SharedPreferences preferences;
 
     ServiceConnection myConnection = new ServiceConnection() {
         @Override
@@ -68,7 +74,6 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         res = getResources();
         listFragment = new BookListFragment();
         detailsFragment = new BookDetailsFragment();
@@ -206,8 +211,19 @@ public class MainActivity extends FragmentActivity implements BookSelectedListen
     }
 
     @Override
-    public void onBookTitleSelected(int input) {
+        public void onBookTitleSelected(int input) {
         detailsFragment.setText(bookList.get(input));
+    }
+
+    public void deleteFile (int bookID) {
+
+    }
+
+    public void downloadFile (int bookID) {
+        String URL = "https://kamorris.com/lab/audlib/download.php?id=<" + Integer.toString(bookID) + ">";
+        Log.d("Download: ", URL);
+        DownloadBookFromURL downloadTask = new DownloadBookFromURL();
+        downloadTask.execute(URL);
     }
 }
 
